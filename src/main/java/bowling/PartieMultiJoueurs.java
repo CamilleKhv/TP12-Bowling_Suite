@@ -27,7 +27,10 @@ public class PartieMultiJoueurs implements IPartieMultiJoueurs {
 		for (String nom : nomsDesJoueurs) {
 			joueurs.put(nom, new Joueur());
 		}
-
+		
+		System.out.println("Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
+			", tour n° " + tourCourant + ", boule n° " + bouleCourante);
+		
 		return "Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
 			", tour n° " + tourCourant + ", boule n° " + bouleCourante;
 	}
@@ -37,13 +40,30 @@ public class PartieMultiJoueurs implements IPartieMultiJoueurs {
 		if (nomsDesJoueurs == null || nomsDesJoueurs.length == 0) {
 			throw new IllegalStateException("La partie n'est pas démarrée.");
 		}
-
 		Joueur joueurCourant = joueurs.get(nomsDesJoueurs[joueurCourantIndex]);
+		
+
+		bouleCourante++;
+		if (bouleCourante > 2 || (tourCourant == 10 && bouleCourante > 3)) {
+			bouleCourante = 1;
+			tourCourant++;
+
+
+			if (tourCourant > 10) {
+				// La partie est terminée
+				return "Partie terminée";
+			}
+			joueurCourantIndex = (joueurCourantIndex + 1) % nomsDesJoueurs.length;
+		}
+		
+
+		
 		joueurCourant.enregistreLancer(tourCourant, bouleCourante, nombreDeQuillesAbattues);
-
-		// Logique pour déterminer le prochain joueur, tour et boule
-		// ...
-
+		
+		System.out.println("Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
+			", tour n° " + tourCourant + ", boule n° " + bouleCourante);
+		
+		
 		return "Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
 			", tour n° " + tourCourant + ", boule n° " + bouleCourante;
 	}
