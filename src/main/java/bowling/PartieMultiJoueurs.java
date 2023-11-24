@@ -1,79 +1,62 @@
 package bowling;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class PartieMultiJoueurs implements IPartieMultiJoueurs {
 
-	private String[] nomsDesJoueurs;
-	private Map<String, Joueur> joueurs;
-	private int joueurCourantIndex;
-	private int tourCourant;
-	private int bouleCourante;
+	private HashMap<String, PartieMonoJoueur> laGame;
+	private String[] noms;
+	private int nombreDeJoueurs;
+	private int numeroJoueurAct = -1;
 
-	public PartieMultiJoueurs() {
-		joueurs = new HashMap<>();
+	public String getPhraseRetour() {
+		return "Prochain tir : joueur " + noms[numeroJoueurAct] +
+			", tour n° " + laGame.get(noms[numeroJoueurAct]).numeroTourCourant() +
+			", boule n° " + laGame.get(noms[numeroJoueurAct]).numeroProchainLancer();
 	}
 	
 	public String demarreNouvellePartie(String[] nomsDesJoueurs) throws IllegalArgumentException {
 		if (nomsDesJoueurs == null || nomsDesJoueurs.length == 0) {
-			throw new IllegalArgumentException("Le tableau des noms des joueurs ne peut pas être vide ou null.");
+			throw new IllegalArgumentException("Le tableau de noms est vide");
 		}
-		this.nomsDesJoueurs = nomsDesJoueurs;
-		this.joueurCourantIndex = 0;
-		this.tourCourant = 1;
-		this.bouleCourante = 1;
+
+		// Initialisation
+		laGame = new HashMap<>();
+		this.noms = nomsDesJoueurs;
+		nombreDeJoueurs = nomsDesJoueurs.length;
+		numeroJoueurAct = 0;
 
 		for (String nom : nomsDesJoueurs) {
-			joueurs.put(nom, new Joueur());
+			laGame.put(nom, new PartieMonoJoueur());
 		}
-		
-		System.out.println("Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
-			", tour n° " + tourCourant + ", boule n° " + bouleCourante);
-		
-		return "Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
-			", tour n° " + tourCourant + ", boule n° " + bouleCourante;
-	}
 
-	@Override
+		return getPhraseRetour();
+	}
+	
 	public String enregistreLancer(int nombreDeQuillesAbattues) throws IllegalStateException {
-		if (nomsDesJoueurs == null || nomsDesJoueurs.length == 0) {
-			throw new IllegalStateException("La partie n'est pas démarrée.");
+		if (numeroJoueurAct == -1) {
+			throw new IllegalStateException("La partie n'a pas commencé");
 		}
-		Joueur joueurCourant = joueurs.get(nomsDesJoueurs[joueurCourantIndex]);
-		
 
-		bouleCourante++;
-		if (bouleCourante > 2 || (tourCourant == 10 && bouleCourante > 3)) {
-			bouleCourante = 1;
-			tourCourant++;
-
-
-			if (tourCourant > 10) {
-				// La partie est terminée
-				return "Partie terminée";
-			}
-			joueurCourantIndex = (joueurCourantIndex + 1) % nomsDesJoueurs.length;
+		if (laGame.get(noms[0]).numeroTourCourant() == 0) {
+			return "Partie terminée";
 		}
-		
 
-		
-		joueurCourant.enregistreLancer(tourCourant, bouleCourante, nombreDeQuillesAbattues);
-		
-		System.out.println("Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
-			", tour n° " + tourCourant + ", boule n° " + bouleCourante);
-		
-		
-		return "Prochain tir : joueur " + nomsDesJoueurs[joueurCourantIndex] +
-			", tour n° " + tourCourant + ", boule n° " + bouleCourante;
+		PartieMonoJoueur joueurPartie = laGame.get(noms[numeroJoueurAct]);
+		joueurPartie.enregistreLancer(nombreDeQuillesAbattues);
+
+		if (joueurPartie.numeroProchainLancer() == 1 || joueurPartie.estTerminee()) {
+			numeroJoueurAct = (numeroJoueurAct + 1) % nombreDeJoueurs;
+		}
+		return getPhraseRetour();
 	}
 
-	@Override
+
 	public int scorePour(String nomDuJoueur) throws IllegalArgumentException {
-		if (!joueurs.containsKey(nomDuJoueur)) {
-			throw new IllegalArgumentException("Le joueur " + nomDuJoueur + " ne joue pas dans cette partie.");
+		if (laGame.get(nomDuJoueur) == null) {
+			throw new IllegalArgumentException(nomDuJoueur + " ne joue pas dans cette partie");
 		}
 
-		return joueurs.get(nomDuJoueur).calculeScore();
+		return laGame.get(nomDuJoueur).score();
 	}
 }

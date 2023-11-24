@@ -4,12 +4,14 @@ class Main {
 	public static void main(String[] args) {
 		String[] players={"Pierre","Paul"};
 		PartieMultiJoueurs partie = new PartieMultiJoueurs();
-		partie.demarreNouvellePartie(players);
-		partie.enregistreLancer(5);
-		partie.enregistreLancer(3);
-		partie.enregistreLancer(10);
-		partie.enregistreLancer(7);
-		partie.enregistreLancer(3);
-	
+		System.out.println(partie.demarreNouvellePartie(players));
+		System.out.println(partie.enregistreLancer(5));
+		System.out.println(partie.enregistreLancer(3));
+		System.out.println(partie.enregistreLancer(10));
+		System.out.println(partie.enregistreLancer(7));
+		System.out.println(partie.enregistreLancer(3));
+
+		System.out.println(partie.scorePour("Pierre"));
+		System.out.println(partie.scorePour("Paul"));
 	}
 }
